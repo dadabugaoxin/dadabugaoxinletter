@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>爱心信封 | 全屏信纸 · 轻触关闭</title>
     <style>
         * {
@@ -241,21 +241,54 @@
         /* 响应式: 小屏幕下适当缩小内边距和字号 */
         @media (max-width: 560px) {
             .envelope-container {
-                width: 300px;
-                height: 200px;
+                width: 280px;
+                height: 180px;
             }
             .heart-btn {
-                font-size: 38px;
+                font-size: 36px;
+                padding: 12px;
             }
             .letter-card {
-                padding: 1.5rem;
-                width: 85%;
+                padding: 1.2rem;
+                width: 92%;
+                max-height: 85vh;
             }
             .letter-content {
-                font-size: 1rem;
+                font-size: 0.95rem;
+                line-height: 1.7;
             }
             .letter-content h3 {
-                font-size: 1.6rem;
+                font-size: 1.4rem;
+                letter-spacing: 2px;
+            }
+            .close-fullscreen {
+                width: 40px;
+                height: 40px;
+                font-size: 24px;
+                top: 16px;
+                right: 16px;
+            }
+            .signature {
+                margin-top: 1.4rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* 针对更小屏幕的优化 */
+        @media (max-width: 360px) {
+            .envelope-container {
+                width: 240px;
+                height: 160px;
+            }
+            .heart-btn {
+                font-size: 32px;
+            }
+            .letter-card {
+                padding: 1rem;
+                width: 95%;
+            }
+            .letter-content {
+                font-size: 0.9rem;
             }
         }
 
@@ -414,6 +447,20 @@
             if (isOpen || isAnimating) return;
             e.preventDefault();
             onHeartClick(e);
+        }, { passive: false });
+        
+        // 移动端关闭按钮触摸支持
+        closeFsBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            closeFullscreenAndResetEnvelope();
+        }, { passive: false });
+        
+        // 移动端点击背景关闭支持
+        fullscreenLayer.addEventListener('touchstart', (e) => {
+            if (e.target === fullscreenLayer) {
+                e.preventDefault();
+                closeFullscreenAndResetEnvelope();
+            }
         }, { passive: false });
         
         // 确保全屏层打开时背景滚动锁定，关闭时解锁 (额外保险)
