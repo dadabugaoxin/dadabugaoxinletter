@@ -32,6 +32,17 @@
             justify-content: center;
             gap: 30px;
             perspective: 1200px;
+            transition: opacity 0.5s ease;
+        }
+
+        /* 信封打开时隐藏非信纸元素 */
+        .envelope-wrapper.open .envelope-container,
+        .envelope-wrapper.open .reset-btn,
+        .envelope-wrapper.open .helper-tip {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.9);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         /* 信封容器 3D 空间 */
@@ -353,6 +364,7 @@
         const container = document.getElementById('envelopeContainer');
         const heartBtn = document.getElementById('heartButton');
         const resetBtn = document.getElementById('resetButton');
+        const wrapper = document.querySelector('.envelope-wrapper');
         
         // 状态锁：是否已经打开信封 (避免重复触发动画及效果)
         let isOpen = false;
@@ -366,6 +378,8 @@
             
             // 添加打开类，触发CSS动画
             container.classList.add('open');
+            // 给主容器添加open类，隐藏其他元素
+            wrapper.classList.add('open');
             
             // 打开后禁用爱心再次点击 (已经用 pointer-events + 状态锁)
             // 但确保状态同步
@@ -390,6 +404,8 @@
             
             // 移除打开类，让盖子合上，信纸收回
             container.classList.remove('open');
+            // 移除主容器的open类，显示其他元素
+            wrapper.classList.remove('open');
             
             // 等待动画完成后再重置状态标志，避免动画期间触发打开
             setTimeout(() => {
