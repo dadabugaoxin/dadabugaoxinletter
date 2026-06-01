@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>爱心信封 | 浪漫信笺动画</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* 避免拖动/选中文本影响点击感 */
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #f9e3d0 0%, #ffccb3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Quicksand', system-ui, -apple-system, 'Poppins', 'Roboto', sans-serif;
+            padding: 20px;
+            margin: 0;
+            cursor: default;
+        }
+
+        /* 主容器：信封 + 重置按钮区域 */
+        .envelope-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            perspective: 1200px;
+        }
+
+        /* 信封容器 3D 空间 */
+        .envelope-container {
+            position: relative;
+            width: 360px;
+            height: 240px;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        /* 信封主体 (底部和边缘) */
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #fdf8ed;
+            background-image: radial-gradient(circle at 25% 40%, rgba(255,215,170,0.3) 2%, transparent 2.5%);
+            background-size: 18px 18px;
+            border-radius: 12px 12px 10px 10px;
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255,255,240,0.8);
+            transform-style: preserve-3d;
+            transition: box-shadow 0.2s;
+        }
+
+        /* 信封正面装饰线 */
+        .envelope::before {
+            content: "";
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 2px;
+            background: repeating-linear-gradient(90deg, #e3c9a0, #e3c9a0 8px, transparent 8px, transparent 16px);
+            border-radius: 2px;
+        }
+
+        /* 封口盖板 (可翻转的上半部分) */
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 48%;
+            background: #f7e9d7;
+            background: linear-gradient(135deg, #fef5e8 0%, #f8e3ce 100%);
+            border-radius: 12px 12px 30px 30px;
+            transform-origin: top center;
+            transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+            z-index: 20;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-bottom: 2px solid #ecd9bf;
+            cursor: default;
+        }
+
+        /* 封口三角形立体感 */
+        .flap::after {
+            content: "";
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 18px;
+            background: #e9d2b5;
+            clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+            opacity: 0.5;
+        }
+
+        /* 爱心按钮 (封口处) */
+        .heart-btn {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 42px;
+            cursor: pointer;
+            z-index: 30;
+            transition: all 0.2s ease;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+            animation: gentleBeat 1.6s infinite ease-in-out;
+            background: transparent;
+            border: none;
+            line-height: 1;
+        }
+
+        .heart-btn:active {
+            transform: translate(-50%, -50%) scale(0.9);
+        }
+
+        /* 心跳微动画 */
+        @keyframes gentleBeat {
+            0% { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 0 rgba(255,80,120,0);}
+            50% { transform: translate(-50%, -50%) scale(1.12); text-shadow: 0 0 8px rgba(255,60,100,0.5);}
+            100% { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 0 rgba(255,80,120,0);}
+        }
+
+        /* 打开信封时，爱心暂停呼吸动画 并略微隐藏可点性 */
+        .envelope-container.open .heart-btn {
+            animation: none;
+            opacity: 0.5;
+            pointer-events: none;
+            filter: drop-shadow(0 0 2px rgba(0,0,0,0.1));
+            transition: opacity 0.3s;
+        }
+
+        /* 打开效果：盖子上翻 180度 (掀开) */
+        .envelope-container.open .flap {
+            transform: rotateX(180deg);
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* 信纸容器 (初始藏在信封内部底部) */
+        .letter {
+            position: absolute;
+            bottom: 12px;
+            left: 18px;
+            right: 18px;
+            width: calc(100% - 36px);
+            background: #fffef7;
+            background: linear-gradient(145deg, #ffffff 0%, #fffaf0 100%);
+            border-radius: 8px 8px 12px 12px;
+            padding: 20px 16px 16px 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.5s ease;
+            transform: translateY(100%);
+            opacity: 0;
+            z-index: 15;
+            pointer-events: none;  /* 内容不可交互 但显示即可 */
+            border: 1px solid #ffe1b3;
+            backdrop-filter: blur(0px);
+            overflow-y: auto;
+            max-height: 170px;
+        }
+
+        /* 打开信纸: 优雅滑出并显示内容 */
+        .envelope-container.open .letter {
+            transform: translateY(-70px);
+            opacity: 1;
+            pointer-events: auto;
+            transition-delay: 0.1s;
+            box-shadow: 0 18px 28px -6px rgba(0, 0, 0, 0.25);
+        }
+
+        /* 信纸内容样式 */
+        .letter-content {
+            font-family: 'Georgia', '楷体', '华文楷书', ' cursive';
+            color: #5a3e2b;
+            font-size: 15px;
+            line-height: 1.55;
+            text-align: left;
+        }
+
+        .letter-content h3 {
+            text-align: center;
+            margin-bottom: 12px;
+            color: #c53a1f;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            border-bottom: 1px dashed #f3cf9a;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .letter-content p {
+            margin: 8px 0;
+            text-indent: 2em;
+        }
+
+        .signature {
+            text-align: right;
+            margin-top: 14px;
+            font-style: italic;
+            font-size: 13px;
+            color: #b97f4b;
+            border-top: 1px dotted #f0cf9e;
+            padding-top: 8px;
+        }
+
+        /* 装饰小花 */
+        .letter-content .small-flower {
+            font-size: 14px;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        /* 重置按钮 */
+        .reset-btn {
+            background: #ffb882;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #4f2f1a;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #a05e2c;
+            transition: all 0.1s linear;
+            font-family: inherit;
+            backdrop-filter: blur(2px);
+            background: #ffcc99;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reset-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 3px 0 #a05e2c;
+        }
+
+        .reset-btn:hover {
+            background: #ffbf82;
+            box-shadow: 0 5px 0 #a05e2c;
+        }
+
+        /* 打开后信封整体氛围微阴影 */
+        .envelope-container.open .envelope {
+            box-shadow: 0 25px 35px -14px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .envelope-container {
+                width: 300px;
+                height: 200px;
+            }
+            .heart-btn {
+                font-size: 36px;
+            }
+            .letter {
+                padding: 14px 12px;
+                max-height: 150px;
+            }
+            .letter-content {
+                font-size: 13px;
+            }
+            .reset-btn {
+                padding: 8px 22px;
+                font-size: 0.9rem;
+            }
+            .envelope-container.open .letter {
+                transform: translateY(-60px);
+            }
+        }
+
+        /* 提示小标签 */
+        .helper-tip {
+            font-size: 13px;
+            color: #b1642c;
+            background: rgba(255,235,210,0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 30px;
+            padding: 4px 12px;
+            margin-top: -12px;
+            display: inline-block;
+        }
+
+        /* 爱心周围的微光 */
+        @keyframes glowPulse {
+            0% { text-shadow: 0 0 0 #ff9f6e; }
+            100% { text-shadow: 0 0 0 #ff4d6d; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="envelope-wrapper">
+    <div class="envelope-container" id="envelopeContainer">
+        <div class="envelope">
+            <!-- 封口翻盖 -->
+            <div class="flap"></div>
+            <!-- 封口爱心 (可点击触发) -->
+            <div class="heart-btn" id="heartButton" aria-label="打开信封">❤️</div>
+            <!-- 信纸区域 (内容) -->
+            <div class="letter" id="letterPaper">
+                <div class="letter-content">
+                    <h3>✨ 见信如晤 ✨</h3>
+                    <p>亲爱的朋友：</p>
+                    <p>当你打开这封信时，愿你嘴角带着笑意。每一份浪漫都藏在小小的信封里，如同春天的花瓣，轻轻飘落在心尖。</p>
+                    <p>感谢你点击这颗爱心，让我把藏在心底的温柔，一字一句说给你听。愿我们都能在平凡的日子里，遇见闪闪发光的惊喜。</p>
+                    <p>世界很大，幸福很小，希望这封信能温暖你的此时光景。</p>
+                    <div class="signature">
+                        🌟 一封承载心意的信 <br>
+                        —— 来自数字世界的浪漫
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="reset-btn" id="resetButton">✉️ 重新合上信封 ✉️</button>
+    <div class="helper-tip">💖 点击信封上的爱心，开启信纸 ✨</div>
+</div>
+
+<script>
+    (function() {
+        // 获取 DOM 元素
+        const container = document.getElementById('envelopeContainer');
+        const heartBtn = document.getElementById('heartButton');
+        const resetBtn = document.getElementById('resetButton');
+        
+        // 状态锁：是否已经打开信封 (避免重复触发动画及效果)
+        let isOpen = false;
+        // 动画执行中标志 用于避免快速点击/重置时的冲突
+        let isAnimating = false;
+        
+        // 打开信封的方法
+        function openEnvelope() {
+            if (isOpen || isAnimating) return;
+            isAnimating = true;
+            
+            // 添加打开类，触发CSS动画
+            container.classList.add('open');
+            
+            // 打开后禁用爱心再次点击 (已经用 pointer-events + 状态锁)
+            // 但确保状态同步
+            isOpen = true;
+            
+            // 给足动画时间(过渡时长0.65s + 信纸延迟0.1s , 确保内部稳定)
+            setTimeout(() => {
+                isAnimating = false;
+                // 可选：触发一个自定义事件，但是不需要额外操作
+            }, 750);
+        }
+        
+        // 重置信封：关闭所有效果，让爱心恢复可点
+        function resetEnvelope() {
+            if (isAnimating) return;
+            // 如果已经是关闭状态，不需要重复重置，但可以硬重置样式
+            if (!isOpen && !container.classList.contains('open')) {
+                // 确保状态clean，但防止强制刷新也没有额外操作
+                return;
+            }
+            isAnimating = true;
+            
+            // 移除打开类，让盖子合上，信纸收回
+            container.classList.remove('open');
+            
+            // 等待动画完成后再重置状态标志，避免动画期间触发打开
+            setTimeout(() => {
+                isOpen = false;
+                isAnimating = false;
+                // 确保爱心重新变为可点状态（CSS已经通过 .open .heart-btn 改变 pointer-events，移除open后自动恢复）
+                // 额外重新激活呼吸动画(通过移除并重新添加类来重启动画 可优化)
+                // 为了让爱心动画重新唤起，移除后强制重绘
+                heartBtn.style.animation = 'none';
+                heartBtn.offsetHeight; // 强制重绘
+                heartBtn.style.animation = '';
+                // 恢复阴影和光标
+            }, 650);
+        }
+        
+        // 爱心点击事件 (仅当未打开时触发)
+        function onHeartClick(e) {
+            e.stopPropagation();
+            if (isOpen || isAnimating) {
+                // 如果已经打开，忽略点击
+                return;
+            }
+            openEnvelope();
+        }
+        
+        // 重置按钮点击事件
+        function onResetClick(e) {
+            e.stopPropagation();
+            resetEnvelope();
+        }
+        
+        // 绑定事件
+        heartBtn.addEventListener('click', onHeartClick);
+        resetBtn.addEventListener('click', onResetClick);
+        
+        // 为防止点击信封其他区域意外触发 但是无关紧要
+        // 优雅处理触摸设备上的快速点击
+        let touchTimeout = null;
+        heartBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (touchTimeout) clearTimeout(touchTimeout);
+            touchTimeout = setTimeout(() => {
+                onHeartClick(e);
+                touchTimeout = null;
+            }, 10);
+        });
+        
+        // 确保重置时不会混乱，重置时若正在打开动画过程中，允许等待完成再重置吗?
+        // 为防止竞态条件：如果重置时 isAnimating = true，就在动画结束后执行重置？
+        // 优化重置逻辑：若动画中，等待当前动画完成再重置
+        const originalReset = resetEnvelope;
+        window.resetEnvelope = function() {
+            if (isAnimating) {
+                // 等待当前动画(打开或关闭)结束再做重置
+                let checkInterval = setInterval(() => {
+                    if (!isAnimating) {
+                        clearInterval(checkInterval);
+                        originalReset();
+                    }
+                }, 30);
+                // 超时保护
+                setTimeout(() => {
+                    clearInterval(checkInterval);
+                    if (isAnimating) {
+                        // 强制重置标志
+                        isAnimating = false;
+                        originalReset();
+                    }
+                }, 800);
+                return;
+            }
+            originalReset();
+        };
+        // 替换resetBtn绑定的函数
+        resetBtn.removeEventListener('click', onResetClick);
+        const newResetHandler = (e) => {
+            e.stopPropagation();
+            if (isAnimating) {
+                // 温和地等待后重置
+                let attempt = 0;
+                const waitReset = setInterval(() => {
+                    if (!isAnimating || attempt > 25) {
+                        clearInterval(waitReset);
+                        originalReset();
+                    }
+                    attempt++;
+                }, 30);
+                return;
+            }
+            originalReset();
+        };
+        resetBtn.addEventListener('click', newResetHandler);
+        
+        // 重新绑定heart事件保证正确性 (防止多次绑定)
+        heartBtn.removeEventListener('click', onHeartClick);
+        heartBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isOpen || isAnimating) return;
+            openEnvelope();
+        });
+        
+        // 额外: 信纸内容过长可滚动效果已经实现, 增加手动优雅处理
+        // 预置信纸可见性 确保动画一致性
+        // 如果用户快速重置后再打开，不会有冲突锁
+        // 增加初始无障碍提示
+        console.log('信封动画已准备 | 点击爱心❤️打开信封');
+        
+        // 针对移动端防止双击缩放影响 (不影响主要功能)
+        heartBtn.addEventListener('touchstart', (e) => {
+            // 只阻止默认避免页面缩放? 但会破坏滚动，无需全局阻止，只确保点击不触发页面缩放导致布局偏移
+            if (isOpen || isAnimating) return;
+            e.preventDefault();
+            openEnvelope();
+        }, { passive: false });
+        
+        // 补充：如果用户在没有完全动画时重置，上面的定时器保证了最终重置完整性
+        // 确保点击重置时若信封已经打开，平滑合上并清空所有状态。
+        // 同时合上后爱心恢复点击触发功能。
+        // 小彩蛋: 当信封重新合上时，让爱心恢复跳跃
+        const originalSetOpenFalse = () => {};
+        
+        // 监听Transition结束重新修正状态保险 (额外处理)
+        container.addEventListener('transitionend', (e) => {
+            // 针对flap或信封容器变换结束, 如果是因为关闭动画完成且 container没有open类
+            if (!container.classList.contains('open') && isOpen === true && !isAnimating) {
+                // 状态同步最终修正
+                isOpen = false;
+            } else if (container.classList.contains('open') && isOpen === false && !isAnimating) {
+                isOpen = true;
+            }
+        });
+        
+        // 初始化确保爱心显示正常 & 强制清理可能遗留的open类
+        container.classList.remove('open');
+        isOpen = false;
+        isAnimating = false;
+        
+        // 多虑: 如果因为某些情况信纸内容溢出 调整max-height
+        const letterElem = document.getElementById('letterPaper');
+        if (letterElem) {
+            function adjustLetterHeight() {
+                if (window.innerWidth <= 480) {
+                    letterElem.style.maxHeight = '150px';
+                } else {
+                    letterElem.style.maxHeight = '170px';
+                }
+            }
+            adjustLetterHeight();
+            window.addEventListener('resize', adjustLetterHeight);
+        }
+        
+        // 附加功能：爱心在hover时略微放大
+        heartBtn.addEventListener('mouseenter', () => {
+            if (!isOpen && !isAnimating) {
+                heartBtn.style.transform = 'translate(-50%, -50%) scale(1.1)';
+            }
+        });
+        heartBtn.addEventListener('mouseleave', () => {
+            heartBtn.style.transform = 'translate(-50%, -50%) scale(1)';
+        });
+        
+        // 确保当重置完成后如果爱心pointer-events恢复原样
+        // 所有逻辑 ok
+    })();
+</script>
+</body>
+</html>
