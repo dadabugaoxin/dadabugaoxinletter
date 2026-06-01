@@ -85,7 +85,7 @@ def upload_to_github(folder_path, commit_message="Update files"):
         print("推送失败: " + stderr)
         return False
     
-    print("\n✅ 上传成功！")
+    print("\n[OK] 上传成功！")
     return True
 
 if __name__ == "__main__":
