@@ -3,179 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的技术博客</title>
+    <title>我的小情书博客</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header class="header">
-        <nav class="navbar">
-            <div class="nav-container">
-                <a href="index.html" class="logo">TechBlog</a>
-                <div class="nav-links">
-                    <a href="index.html" class="nav-link active">首页</a>
-                    <a href="#about" class="nav-link">关于</a>
-                    <a href="#contact" class="nav-link">联系</a>
+    <div class="decorations">
+        <div class="star" style="top: 10%; left: 15%;"></div>
+        <div class="star" style="top: 20%; left: 80%;"></div>
+        <div class="star" style="top: 60%; left: 10%;"></div>
+        <div class="star" style="top: 80%; left: 85%;"></div>
+        <div class="heart" style="top: 30%; left: 25%;"></div>
+        <div class="heart" style="top: 70%; left: 70%;"></div>
+        <div class="heart" style="top: 15%; left: 60%;"></div>
+        <div class="cloud" style="top: 5%; left: 75%;"></div>
+        <div class="cloud" style="top: 90%; left: 20%;"></div>
+    </div>
+
+    <div class="envelope-container" id="envelopeContainer">
+        <div class="envelope" id="envelope">
+            <div class="envelope-flap"></div>
+            <div class="envelope-body">
+                <div class="envelope-heart" id="envelopeHeart">
+                    <span class="heart-icon">💕</span>
                 </div>
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="搜索文章...">
-                    <button id="searchBtn">搜索</button>
+                <div class="envelope-stamp">
+                    <span class="stamp-text">✉️</span>
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <main class="main-content">
-        <section class="hero">
-            <h1>欢迎来到我的技术博客</h1>
-            <p>分享技术心得，记录成长之路</p>
-        </section>
-
-        <section class="categories">
-            <span class="category active" data-category="all">全部</span>
-            <span class="category" data-category="frontend">前端</span>
-            <span class="category" data-category="backend">后端</span>
-            <span class="category" data-category="devops">DevOps</span>
-            <span class="category" data-category="ai">人工智能</span>
-        </section>
-
-        <section class="articles-container" id="articlesContainer">
-            <article class="article-card" data-category="frontend">
-                <div class="article-image">
-                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=modern%20web%20development%20code%20editor%20with%20React%20components&image_size=landscape_16_9" alt="文章图片">
-                </div>
-                <div class="article-content">
-                    <span class="article-tag">前端</span>
-                    <h2 class="article-title">React 18 新特性详解</h2>
-                    <p class="article-summary">React 18 带来了许多令人兴奋的新特性，包括并发渲染、自动批处理、Suspense改进等。本文将深入探讨这些新功能如何提升你的应用性能。</p>
-                    <div class="article-meta">
-                        <span>发布于 2024-01-15</span>
-                        <span>阅读时间: 8分钟</span>
+            <div class="letter" id="letter">
+                <div class="letter-content">
+                    <div class="letter-header">
+                        <h1>💌 我的小情书博客</h1>
+                        <p class="subtitle">分享生活点滴，记录美好时光</p>
                     </div>
-                    <button class="read-more" onclick="openArticle('article1.html')">阅读更多</button>
-                </div>
-            </article>
-
-            <article class="article-card" data-category="backend">
-                <div class="article-image">
-                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=server%20side%20programming%20nodejs%20backend%20development&image_size=landscape_16_9" alt="文章图片">
-                </div>
-                <div class="article-content">
-                    <span class="article-tag">后端</span>
-                    <h2 class="article-title">Node.js 性能优化最佳实践</h2>
-                    <p class="article-summary">Node.js 作为高性能的服务端运行时，如何充分发挥其潜力？本文介绍了缓存策略、异步处理、内存管理等方面的优化技巧。</p>
-                    <div class="article-meta">
-                        <span>发布于 2024-01-12</span>
-                        <span>阅读时间: 10分钟</span>
+                    
+                    <div class="letter-nav">
+                        <a href="#articles" class="nav-item">📝 文章列表</a>
+                        <a href="#about" class="nav-item">👧 关于我</a>
+                        <a href="#contact" class="nav-item">💬 联系我</a>
                     </div>
-                    <button class="read-more" onclick="openArticle('article2.html')">阅读更多</button>
-                </div>
-            </article>
 
-            <article class="article-card" data-category="devops">
-                <div class="article-image">
-                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cloud%20infrastructure%20docker%20kubernetes%20devops%20automation&image_size=landscape_16_9" alt="文章图片">
-                </div>
-                <div class="article-content">
-                    <span class="article-tag">DevOps</span>
-                    <h2 class="article-title">Docker 容器化实战指南</h2>
-                    <p class="article-summary">从基础概念到高级配置，全面掌握 Docker 容器化技术。包括镜像构建、网络配置、数据持久化等核心知识点。</p>
-                    <div class="article-meta">
-                        <span>发布于 2024-01-10</span>
-                        <span>阅读时间: 12分钟</span>
+                    <div id="articles" class="articles-section">
+                        <h2 class="section-title">📚 最近的信</h2>
+                        <div class="articles-grid">
+                            <article class="article-card" data-category="frontend">
+                                <div class="article-icon">🎨</div>
+                                <h3 class="article-title">React 18 新特性详解</h3>
+                                <p class="article-summary">React 18 带来了许多令人兴奋的新特性...</p>
+                                <span class="article-date">2024-01-15</span>
+                                <button class="read-btn" onclick="openArticle('article1.html')">阅读 💖</button>
+                            </article>
+
+                            <article class="article-card" data-category="backend">
+                                <div class="article-icon">⚙️</div>
+                                <h3 class="article-title">Node.js 性能优化</h3>
+                                <p class="article-summary">Node.js 作为高性能的服务端运行时...</p>
+                                <span class="article-date">2024-01-12</span>
+                                <button class="read-btn" onclick="openArticle('article2.html')">阅读 💖</button>
+                            </article>
+
+                            <article class="article-card" data-category="devops">
+                                <div class="article-icon">🐳</div>
+                                <h3 class="article-title">Docker 容器化指南</h3>
+                                <p class="article-summary">从基础概念到高级配置...</p>
+                                <span class="article-date">2024-01-10</span>
+                                <button class="read-btn" onclick="openArticle('article3.html')">阅读 💖</button>
+                            </article>
+
+                            <article class="article-card" data-category="ai">
+                                <div class="article-icon">🤖</div>
+                                <h3 class="article-title">深度学习入门</h3>
+                                <p class="article-summary">从零开始介绍深度学习...</p>
+                                <span class="article-date">2024-01-08</span>
+                                <button class="read-btn" onclick="openArticle('article4.html')">阅读 💖</button>
+                            </article>
+                        </div>
                     </div>
-                    <button class="read-more" onclick="openArticle('article3.html')">阅读更多</button>
-                </div>
-            </article>
 
-            <article class="article-card" data-category="ai">
-                <div class="article-image">
-                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=artificial%20intelligence%20machine%20learning%20neural%20network%20visualization&image_size=landscape_16_9" alt="文章图片">
-                </div>
-                <div class="article-content">
-                    <span class="article-tag">人工智能</span>
-                    <h2 class="article-title">深度学习入门：从零搭建神经网络</h2>
-                    <p class="article-summary">本文从零开始介绍深度学习的基本概念，包括神经网络结构、反向传播算法、梯度下降优化等核心原理。</p>
-                    <div class="article-meta">
-                        <span>发布于 2024-01-08</span>
-                        <span>阅读时间: 15分钟</span>
+                    <div id="about" class="about-section">
+                        <h2 class="section-title">👧 关于我</h2>
+                        <div class="about-content">
+                            <div class="avatar">🌸</div>
+                            <p>大家好呀！我是一个热爱生活的程序员小姐姐~ 🌸</p>
+                            <p>这个博客是我记录技术心得和生活感悟的小天地</p>
+                            <p>希望能和大家一起成长，一起进步！✨</p>
+                        </div>
                     </div>
-                    <button class="read-more" onclick="openArticle('article4.html')">阅读更多</button>
-                </div>
-            </article>
 
-            <article class="article-card" data-category="frontend">
-                <div class="article-image">
-                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=css%20animation%20modern%20web%20design%20responsive%20layout&image_size=landscape_16_9" alt="文章图片">
-                </div>
-                <div class="article-content">
-                    <span class="article-tag">前端</span>
-                    <h2 class="article-title">CSS Grid 布局完全指南</h2>
-                    <p class="article-summary">CSS Grid 是现代 CSS 布局的核心技术。本文详细介绍网格容器、网格项、轨道、单元格等概念，助你掌握现代布局技巧。</p>
-                    <div class="article-meta">
-                        <span>发布于 2024-01-05</span>
-                        <span>阅读时间: 6分钟</span>
+                    <div id="contact" class="contact-section">
+                        <h2 class="section-title">💬 联系我</h2>
+                        <div class="contact-links">
+                            <a href="#" class="contact-item">📧 contact@blog.com</a>
+                            <a href="#" class="contact-item">💬 微信: lovelyblog2024</a>
+                            <a href="#" class="contact-item">🐦 Twitter: @lovelyblog</a>
+                        </div>
                     </div>
-                    <button class="read-more" onclick="openArticle('article5.html')">阅读更多</button>
-                </div>
-            </article>
 
-            <article class="article-card" data-category="backend">
-                <div class="article-image">
-                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=database%20postgresql%20sql%20optimization%20data%20modeling&image_size=landscape_16_9" alt="文章图片">
-                </div>
-                <div class="article-content">
-                    <span class="article-tag">后端</span>
-                    <h2 class="article-title">PostgreSQL 性能调优技巧</h2>
-                    <p class="article-summary">深入探讨 PostgreSQL 数据库的性能优化策略，包括索引优化、查询优化、配置调优和连接池管理等关键技术。</p>
-                    <div class="article-meta">
-                        <span>发布于 2024-01-03</span>
-                        <span>阅读时间: 11分钟</span>
+                    <div class="letter-footer">
+                        <p>💕 感谢你的来访，愿每一天都充满阳光 💕</p>
                     </div>
-                    <button class="read-more" onclick="openArticle('article6.html')">阅读更多</button>
-                </div>
-            </article>
-        </section>
-    </main>
-
-    <footer id="contact" class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>TechBlog</h3>
-                <p>分享技术心得，记录成长之路</p>
-            </div>
-            <div class="footer-section">
-                <h4>快速链接</h4>
-                <ul>
-                    <li><a href="index.html">首页</a></li>
-                    <li><a href="#about">关于我</a></li>
-                    <li><a href="#contact">联系我</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>联系方式</h4>
-                <p>邮箱: contact@techblog.com</p>
-                <p>微信: techblog2024</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2024 TechBlog. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <section id="about" class="about-section">
-        <div class="about-container">
-            <h2>关于我</h2>
-            <div class="about-content">
-                <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20software%20developer%20portrait%20avatar&image_size=square" alt="头像" class="about-avatar">
-                <div class="about-text">
-                    <p>大家好，我是一名热爱技术的全栈开发者。拥有多年的软件开发经验，专注于Web技术、云计算和人工智能领域。</p>
-                    <p>这个博客是我分享技术心得、记录学习历程的地方。希望通过分享，能够帮助更多人一起成长。</p>
-                    <p>欢迎与我交流探讨技术问题！</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+
+    <div class="hint-text" id="hintText">点击爱心打开信封 💘</div>
 
     <script src="script.js"></script>
 </body>
