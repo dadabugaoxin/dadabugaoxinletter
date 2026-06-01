@@ -2,14 +2,14 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>爱心信封 | 浪漫信笺动画</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>爱心信封 | 全屏信纸 · 轻触关闭</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* 避免拖动/选中文本影响点击感 */
+            user-select: none; /* 避免拖动干扰 */
         }
 
         body {
@@ -18,44 +18,34 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', 'Quicksand', system-ui, -apple-system, 'Poppins', 'Roboto', sans-serif;
+            font-family: 'Segoe UI', 'Quicksand', 'Poppins', system-ui, -apple-system, sans-serif;
             padding: 20px;
-            margin: 0;
-            cursor: default;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        /* 主容器：信封 + 重置按钮区域 */
+        /* 主容器：只包含信封（无底部按钮） */
         .envelope-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 30px;
             perspective: 1200px;
-            transition: opacity 0.5s ease;
+            z-index: 10;
         }
 
-        /* 信封打开时隐藏非信纸元素 */
-        .envelope-wrapper.open .envelope-container,
-        .envelope-wrapper.open .reset-btn,
-        .envelope-wrapper.open .helper-tip {
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(0.9);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        /* 信封容器 3D 空间 */
+        /* 信封容器 (3D空间) */
         .envelope-container {
             position: relative;
             width: 360px;
             height: 240px;
             perspective: 1000px;
             transform-style: preserve-3d;
-            cursor: pointer;
+            cursor: default;
+            transition: opacity 0.3s ease;
         }
 
-        /* 信封主体 (底部和边缘) */
+        /* 信封主体 */
         .envelope {
             position: relative;
             width: 100%;
@@ -69,7 +59,7 @@
             transition: box-shadow 0.2s;
         }
 
-        /* 信封正面装饰线 */
+        /* 信封装饰线 */
         .envelope::before {
             content: "";
             position: absolute;
@@ -81,14 +71,13 @@
             border-radius: 2px;
         }
 
-        /* 封口盖板 (可翻转的上半部分) */
+        /* 封口盖板 (可翻转) */
         .flap {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 48%;
-            background: #f7e9d7;
             background: linear-gradient(135deg, #fef5e8 0%, #f8e3ce 100%);
             border-radius: 12px 12px 30px 30px;
             transform-origin: top center;
@@ -97,10 +86,8 @@
             z-index: 20;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             border-bottom: 2px solid #ecd9bf;
-            cursor: default;
         }
 
-        /* 封口三角形立体感 */
         .flap::after {
             content: "";
             position: absolute;
@@ -120,7 +107,7 @@
             top: 55%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 42px;
+            font-size: 44px;
             cursor: pointer;
             z-index: 30;
             transition: all 0.2s ease;
@@ -129,188 +116,163 @@
             background: transparent;
             border: none;
             line-height: 1;
+            pointer-events: auto;
         }
 
-        .heart-btn:active {
-            transform: translate(-50%, -50%) scale(0.9);
+        /* 爱心隐藏状态 (打开信封时隐藏) */
+        .heart-btn.hidden-heart {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            animation: none;
+            transform: translate(-50%, -50%) scale(0.8);
+            transition: opacity 0.2s, visibility 0.2s;
         }
 
-        /* 心跳微动画 */
         @keyframes gentleBeat {
             0% { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 0 rgba(255,80,120,0);}
-            50% { transform: translate(-50%, -50%) scale(1.12); text-shadow: 0 0 8px rgba(255,60,100,0.5);}
+            50% { transform: translate(-50%, -50%) scale(1.12); text-shadow: 0 0 8px rgba(255,60,100,0.6);}
             100% { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 0 rgba(255,80,120,0);}
         }
 
-        /* 打开信封时，爱心暂停呼吸动画 并略微隐藏可点性 */
-        .envelope-container.open .heart-btn {
-            animation: none;
-            opacity: 0.5;
-            pointer-events: none;
-            filter: drop-shadow(0 0 2px rgba(0,0,0,0.1));
-            transition: opacity 0.3s;
-        }
-
-        /* 打开效果：盖子上翻 180度 (掀开) */
+        /* 打开信封时：盖子上翻 */
         .envelope-container.open .flap {
             transform: rotateX(180deg);
             box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
         }
 
-        /* 信纸容器 (初始藏在信封内部底部) */
-        .letter {
-            position: absolute;
-            bottom: 12px;
-            left: 18px;
-            right: 18px;
-            width: calc(100% - 36px);
-            background: #fffef7;
-            background: linear-gradient(145deg, #ffffff 0%, #fffaf0 100%);
-            border-radius: 8px 8px 12px 12px;
-            padding: 20px 16px 16px 16px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.5s ease, width 0.7s ease, height 0.7s ease, left 0.7s ease, right 0.7s ease, bottom 0.7s ease;
-            transform: translateY(100%) scale(1);
-            opacity: 0;
-            z-index: 15;
-            pointer-events: none;  /* 内容不可交互 但显示即可 */
-            border: 1px solid #ffe1b3;
-            backdrop-filter: blur(0px);
-            overflow-y: auto;
-            max-height: 170px;
+        /* 打开状态下信封整体微阴影 */
+        .envelope-container.open .envelope {
+            box-shadow: 0 25px 35px -14px rgba(0, 0, 0, 0.3);
         }
 
-        /* 打开信纸: 优雅滑出并放大到全屏 */
-        .envelope-container.open .letter {
+        /* ------------------- 全屏信纸模态窗 (点击背景关闭) ------------------- */
+        .fullscreen-letter {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            bottom: 20px;
-            width: calc(100vw - 40px);
-            height: calc(100vh - 40px);
-            transform: translateY(0) scale(1);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            font-family: 'Georgia', '楷体', '华文楷书', cursive;
+            cursor: pointer;  /* 表示点击背景可关闭 */
+        }
+
+        .fullscreen-letter.active {
+            visibility: visible;
             opacity: 1;
-            pointer-events: auto;
-            transition-delay: 0.1s;
-            box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.35);
-            max-height: calc(100vh - 40px);
-            border-radius: 16px;
-            padding: 40px;
-            z-index: 100;
+        }
+
+        /* 信纸卡片：铺满屏幕80% (宽度80%，高度自适应，最大高度80vh) */
+        .letter-card {
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            background: #fffef7;
+            background: linear-gradient(145deg, #ffffff 0%, #fffaf0 100%);
+            border-radius: 32px;
+            padding: 2rem 2.2rem;
+            box-shadow: 0 30px 45px -20px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 215, 170, 0.6);
+            transform: scale(0.95);
+            transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+            position: relative;
+            overflow-y: auto;
+            cursor: default;   /* 卡片内部点击不关闭 */
+            animation: letterFloat 0.6s ease-out;
+        }
+
+        .fullscreen-letter.active .letter-card {
+            transform: scale(1);
+        }
+
+        @keyframes letterFloat {
+            0% {
+                opacity: 0;
+                transform: scale(0.9) translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
         /* 信纸内容样式 */
         .letter-content {
-            font-family: 'Georgia', '楷体', '华文楷书', ' cursive';
             color: #5a3e2b;
-            font-size: 15px;
-            line-height: 1.55;
+            font-size: 1.2rem;
+            line-height: 1.7;
             text-align: left;
         }
 
         .letter-content h3 {
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 1.2rem;
             color: #c53a1f;
-            font-size: 1.3rem;
-            letter-spacing: 2px;
-            border-bottom: 1px dashed #f3cf9a;
+            font-size: 2rem;
+            letter-spacing: 3px;
+            border-bottom: 2px solid #f3cf9a;
             display: inline-block;
             width: 100%;
         }
 
         .letter-content p {
-            margin: 8px 0;
+            margin: 1rem 0;
             text-indent: 2em;
         }
 
         .signature {
             text-align: right;
-            margin-top: 14px;
+            margin-top: 1.8rem;
             font-style: italic;
-            font-size: 13px;
+            font-size: 1rem;
             color: #b97f4b;
             border-top: 1px dotted #f0cf9e;
-            padding-top: 8px;
+            padding-top: 1rem;
         }
 
-        /* 装饰小花 */
-        .letter-content .small-flower {
-            font-size: 14px;
-            display: inline-block;
-            margin-right: 4px;
-        }
-
-        /* 重置按钮 */
-        .reset-btn {
-            background: #ffb882;
-            border: none;
-            padding: 10px 28px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #4f2f1a;
-            cursor: pointer;
-            box-shadow: 0 6px 0 #a05e2c;
-            transition: all 0.1s linear;
-            font-family: inherit;
-            backdrop-filter: blur(2px);
-            background: #ffcc99;
-            letter-spacing: 1px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .reset-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 3px 0 #a05e2c;
-        }
-
-        .reset-btn:hover {
-            background: #ffbf82;
-            box-shadow: 0 5px 0 #a05e2c;
-        }
-
-        /* 打开后信封整体氛围微阴影 */
-        .envelope-container.open .envelope {
-            box-shadow: 0 25px 35px -14px rgba(0, 0, 0, 0.4);
-        }
-
-        /* 响应式 */
-        @media (max-width: 480px) {
+        /* 响应式: 小屏幕下适当缩小内边距和字号 */
+        @media (max-width: 560px) {
             .envelope-container {
                 width: 300px;
                 height: 200px;
             }
             .heart-btn {
-                font-size: 36px;
+                font-size: 38px;
             }
-            .letter {
-                padding: 14px 12px;
-                max-height: 150px;
+            .letter-card {
+                padding: 1.5rem;
+                width: 85%;
             }
             .letter-content {
-                font-size: 13px;
+                font-size: 1rem;
             }
-            .reset-btn {
-                padding: 8px 22px;
-                font-size: 0.9rem;
-            }
-            .envelope-container.open .letter {
-                top: 10px;
-                left: 10px;
-                right: 10px;
-                bottom: 10px;
-                width: calc(100vw - 20px);
-                height: calc(100vh - 20px);
-                max-height: calc(100vh - 20px);
-                padding: 20px;
+            .letter-content h3 {
+                font-size: 1.6rem;
             }
         }
 
-        /* 提示小标签 */
+        /* 信纸内部滚动条美化 */
+        .letter-card::-webkit-scrollbar {
+            width: 6px;
+        }
+        .letter-card::-webkit-scrollbar-track {
+            background: #f0dbc0;
+            border-radius: 10px;
+        }
+        .letter-card::-webkit-scrollbar-thumb {
+            background: #c98f5a;
+            border-radius: 10px;
+        }
+
+        /* 辅助提示（可选，不影响功能） */
         .helper-tip {
             font-size: 13px;
             color: #b1642c;
@@ -318,14 +280,8 @@
             backdrop-filter: blur(4px);
             border-radius: 30px;
             padding: 4px 12px;
-            margin-top: -12px;
-            display: inline-block;
-        }
-
-        /* 爱心周围的微光 */
-        @keyframes glowPulse {
-            0% { text-shadow: 0 0 0 #ff9f6e; }
-            100% { text-shadow: 0 0 0 #ff4d6d; }
+            margin-top: 24px;
+            text-align: center;
         }
     </style>
 </head>
@@ -336,252 +292,191 @@
         <div class="envelope">
             <!-- 封口翻盖 -->
             <div class="flap"></div>
-            <!-- 封口爱心 (可点击触发) -->
-            <div class="heart-btn" id="heartButton" aria-label="打开信封">❤️</div>
-            <!-- 信纸区域 (内容) -->
-            <div class="letter" id="letterPaper">
-                <div class="letter-content">
-                    <h3>✨ 见信如晤 ✨</h3>
-                    <p>亲爱的朋友：</p>
-                    <p>当你打开这封信时，愿你嘴角带着笑意。每一份浪漫都藏在小小的信封里，如同春天的花瓣，轻轻飘落在心尖。</p>
-                    <p>感谢你点击这颗爱心，让我把藏在心底的温柔，一字一句说给你听。愿我们都能在平凡的日子里，遇见闪闪发光的惊喜。</p>
-                    <p>世界很大，幸福很小，希望这封信能温暖你的此时光景。</p>
-                    <div class="signature">
-                        🌟 一封承载心意的信 <br>
-                        —— 来自数字世界的浪漫
-                    </div>
-                </div>
+            <!-- 封口爱心 (点击打开全屏信纸) -->
+            <button class="heart-btn" id="heartButton" aria-label="打开信封">❤️</button>
+        </div>
+    </div>
+    <div class="helper-tip">💖 点击爱心打开信纸 · 轻触背景即可收起 ✨</div>
+</div>
+
+<!-- 全屏信纸浮层 (点击空白区域关闭) -->
+<div class="fullscreen-letter" id="fullscreenLetter">
+    <div class="letter-card">
+        <div class="letter-content">
+            <h3>✨ 见信如晤 ✨</h3>
+            <p>亲爱的朋友：</p>
+            <p>当你打开这封铺满温暖的信笺时，世界都变得柔软起来。愿此刻的浪漫，如星子落入眼眸，点亮平凡日常。</p>
+            <p>感谢你触碰这颗爱心，让藏在信封里的絮语，化作清风，萦绕在你的身旁。每一个字句都是为你而生的心意，每一次呼吸都带着墨香。</p>
+            <p>或许我们相隔屏幕，但此刻心意相通。请收下这份独属于你的诗意时光，愿美好永驻心间。</p>
+            <div class="signature">
+                🌟 一封全屏信笺 · 轻触背景即归 <br>
+                —— 来自数字宇宙的暖意
             </div>
         </div>
     </div>
-    <button class="reset-btn" id="resetButton">✉️ 重新合上信封 ✉️</button>
-    <div class="helper-tip">💖 点击信封上的爱心，开启信纸 ✨</div>
 </div>
 
 <script>
     (function() {
-        // 获取 DOM 元素
-        const container = document.getElementById('envelopeContainer');
+        // DOM 元素
+        const envelopeContainer = document.getElementById('envelopeContainer');
         const heartBtn = document.getElementById('heartButton');
-        const resetBtn = document.getElementById('resetButton');
-        const wrapper = document.querySelector('.envelope-wrapper');
+        const fullscreenLayer = document.getElementById('fullscreenLetter');
         
-        // 状态锁：是否已经打开信封 (避免重复触发动画及效果)
-        let isOpen = false;
-        // 动画执行中标志 用于避免快速点击/重置时的冲突
-        let isAnimating = false;
+        // 状态管理
+        let isOpen = false;          // 信封是否处于打开状态（flap翻开 + 爱心隐藏 + 全屏信纸可见）
+        let isAnimating = false;     // 防止动画中重复触发
         
-        // 打开信封的方法
-        function openEnvelope() {
+        // 辅助函数：隐藏爱心
+        function hideHeart() {
+            heartBtn.classList.add('hidden-heart');
+        }
+        
+        // 显示爱心
+        function showHeart() {
+            heartBtn.classList.remove('hidden-heart');
+        }
+        
+        // 打开信封 + 显示全屏信纸
+        function openEnvelopeAndFullscreen() {
             if (isOpen || isAnimating) return;
             isAnimating = true;
             
-            // 添加打开类，触发CSS动画
-            container.classList.add('open');
-            // 给主容器添加open类，隐藏其他元素
-            wrapper.classList.add('open');
+            // 1. 添加打开类 -> flap 翻转动画
+            envelopeContainer.classList.add('open');
             
-            // 打开后禁用爱心再次点击 (已经用 pointer-events + 状态锁)
-            // 但确保状态同步
-            isOpen = true;
+            // 2. 隐藏爱心
+            hideHeart();
             
-            // 给足动画时间(过渡时长0.65s + 信纸延迟0.1s , 确保内部稳定)
+            // 3. 延迟一点展示全屏信纸 (让盖子翻起更自然)
             setTimeout(() => {
+                fullscreenLayer.classList.add('active');
+                // 锁定背景滚动
+                document.body.style.overflow = 'hidden';
+                isOpen = true;
                 isAnimating = false;
-                // 可选：触发一个自定义事件，但是不需要额外操作
-            }, 750);
+            }, 200);
         }
         
-        // 重置信封：关闭所有效果，让爱心恢复可点
-        function resetEnvelope() {
+        // 关闭全屏信纸 + 合上信封 (爱心重新出现)
+        function closeFullscreenAndResetEnvelope() {
             if (isAnimating) return;
-            // 如果已经是关闭状态，不需要重复重置，但可以硬重置样式
-            if (!isOpen && !container.classList.contains('open')) {
-                // 确保状态clean，但防止强制刷新也没有额外操作
-                return;
-            }
+            // 如果已经关闭并且全屏未激活，不需要操作
+            if (!isOpen && !fullscreenLayer.classList.contains('active')) return;
+            
             isAnimating = true;
             
-            // 移除打开类，让盖子合上，信纸收回
-            container.classList.remove('open');
-            // 移除主容器的open类，显示其他元素
-            wrapper.classList.remove('open');
+            // 1. 移除全屏信纸 (渐隐)
+            fullscreenLayer.classList.remove('active');
+            document.body.style.overflow = '';   // 恢复滚动
             
-            // 等待动画完成后再重置状态标志，避免动画期间触发打开
+            // 2. 等待全屏关闭动画一点点，再合上信封盖
             setTimeout(() => {
+                // 移除信封 open 类 -> flap 回位动画
+                envelopeContainer.classList.remove('open');
+                
+                // 3. 重新显示爱心
+                showHeart();
+                
+                // 重置打开状态
                 isOpen = false;
-                isAnimating = false;
-                // 确保爱心重新变为可点状态（CSS已经通过 .open .heart-btn 改变 pointer-events，移除open后自动恢复）
-                // 额外重新激活呼吸动画(通过移除并重新添加类来重启动画 可优化)
-                // 为了让爱心动画重新唤起，移除后强制重绘
-                heartBtn.style.animation = 'none';
-                heartBtn.offsetHeight; // 强制重绘
-                heartBtn.style.animation = '';
-                // 恢复阴影和光标
-            }, 650);
+                
+                // 动画解锁
+                setTimeout(() => {
+                    isAnimating = false;
+                }, 300);
+            }, 280);
         }
         
-        // 爱心点击事件 (仅当未打开时触发)
+        // 爱心点击事件
         function onHeartClick(e) {
             e.stopPropagation();
-            if (isOpen || isAnimating) {
-                // 如果已经打开，忽略点击
-                return;
-            }
-            openEnvelope();
+            if (isOpen || isAnimating) return;
+            if (fullscreenLayer.classList.contains('active')) return;
+            openEnvelopeAndFullscreen();
         }
         
-        // 重置按钮点击事件
-        function onResetClick(e) {
-            e.stopPropagation();
-            resetEnvelope();
+        // 点击全屏背景关闭 (信纸外部区域)
+        function onFullscreenBackgroundClick(e) {
+            // 只有点击到 .fullscreen-letter 本身（背景遮罩）才触发关闭
+            // 避免点击内部 letter-card 时关闭
+            if (e.target === fullscreenLayer) {
+                closeFullscreenAndResetEnvelope();
+            }
         }
         
         // 绑定事件
         heartBtn.addEventListener('click', onHeartClick);
-        resetBtn.addEventListener('click', onResetClick);
+        fullscreenLayer.addEventListener('click', onFullscreenBackgroundClick);
         
-        // 为防止点击信封其他区域意外触发 但是无关紧要
-        // 优雅处理触摸设备上的快速点击
-        let touchTimeout = null;
+        // 触摸设备优化 (防止双击缩放干扰)
         heartBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            if (touchTimeout) clearTimeout(touchTimeout);
-            touchTimeout = setTimeout(() => {
-                onHeartClick(e);
-                touchTimeout = null;
-            }, 10);
-        });
-        
-        // 确保重置时不会混乱，重置时若正在打开动画过程中，允许等待完成再重置吗?
-        // 为防止竞态条件：如果重置时 isAnimating = true，就在动画结束后执行重置？
-        // 优化重置逻辑：若动画中，等待当前动画完成再重置
-        const originalReset = resetEnvelope;
-        window.resetEnvelope = function() {
-            if (isAnimating) {
-                // 等待当前动画(打开或关闭)结束再做重置
-                let checkInterval = setInterval(() => {
-                    if (!isAnimating) {
-                        clearInterval(checkInterval);
-                        originalReset();
-                    }
-                }, 30);
-                // 超时保护
-                setTimeout(() => {
-                    clearInterval(checkInterval);
-                    if (isAnimating) {
-                        // 强制重置标志
-                        isAnimating = false;
-                        originalReset();
-                    }
-                }, 800);
-                return;
-            }
-            originalReset();
-        };
-        // 替换resetBtn绑定的函数
-        resetBtn.removeEventListener('click', onResetClick);
-        const newResetHandler = (e) => {
-            e.stopPropagation();
-            if (isAnimating) {
-                // 温和地等待后重置
-                let attempt = 0;
-                const waitReset = setInterval(() => {
-                    if (!isAnimating || attempt > 25) {
-                        clearInterval(waitReset);
-                        originalReset();
-                    }
-                    attempt++;
-                }, 30);
-                return;
-            }
-            originalReset();
-        };
-        resetBtn.addEventListener('click', newResetHandler);
-        
-        // 重新绑定heart事件保证正确性 (防止多次绑定)
-        heartBtn.removeEventListener('click', onHeartClick);
-        heartBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (isOpen || isAnimating) return;
-            openEnvelope();
-        });
-        
-        // 额外: 信纸内容过长可滚动效果已经实现, 增加手动优雅处理
-        // 预置信纸可见性 确保动画一致性
-        // 如果用户快速重置后再打开，不会有冲突锁
-        // 增加初始无障碍提示
-        console.log('信封动画已准备 | 点击爱心❤️打开信封');
-        
-        // 针对移动端防止双击缩放影响 (不影响主要功能)
-        heartBtn.addEventListener('touchstart', (e) => {
-            // 只阻止默认避免页面缩放? 但会破坏滚动，无需全局阻止，只确保点击不触发页面缩放导致布局偏移
             if (isOpen || isAnimating) return;
             e.preventDefault();
-            openEnvelope();
+            onHeartClick(e);
         }, { passive: false });
         
-        // 补充：如果用户在没有完全动画时重置，上面的定时器保证了最终重置完整性
-        // 确保点击重置时若信封已经打开，平滑合上并清空所有状态。
-        // 同时合上后爱心恢复点击触发功能。
-        // 小彩蛋: 当信封重新合上时，让爱心恢复跳跃
-        const originalSetOpenFalse = () => {};
-        
-        // 监听Transition结束重新修正状态保险 (额外处理)
-        container.addEventListener('transitionend', (e) => {
-            // 针对flap或信封容器变换结束, 如果是因为关闭动画完成且 container没有open类
-            if (!container.classList.contains('open') && isOpen === true && !isAnimating) {
-                // 状态同步最终修正
-                isOpen = false;
-            } else if (container.classList.contains('open') && isOpen === false && !isAnimating) {
-                isOpen = true;
+        // 确保全屏层打开时背景滚动锁定，关闭时解锁 (额外保险)
+        fullscreenLayer.addEventListener('transitionend', (e) => {
+            if (!fullscreenLayer.classList.contains('active')) {
+                document.body.style.overflow = '';
+            } else {
+                document.body.style.overflow = 'hidden';
             }
         });
         
-        // 初始化确保爱心显示正常 & 强制清理可能遗留的open类
-        container.classList.remove('open');
-        isOpen = false;
-        isAnimating = false;
+        // 初始化: 确保信封关闭、爱心可见、全屏隐藏
+        const initState = () => {
+            envelopeContainer.classList.remove('open');
+            fullscreenLayer.classList.remove('active');
+            showHeart();
+            isOpen = false;
+            isAnimating = false;
+            document.body.style.overflow = '';
+        };
+        initState();
         
-        // 信纸高度自适应
-        const letterElem = document.getElementById('letterPaper');
-        if (letterElem) {
-            function adjustLetterHeight() {
-                // 如果信封已打开，信纸已全屏，不需要调整
-                if (container.classList.contains('open')) {
-                    letterElem.style.maxHeight = 'calc(100vh - 40px)';
-                } else if (window.innerWidth <= 480) {
-                    letterElem.style.maxHeight = '150px';
-                } else {
-                    letterElem.style.maxHeight = '170px';
+        // 盖子动画结束后，确保状态同步（双重保险）
+        envelopeContainer.addEventListener('transitionend', (e) => {
+            if (e.propertyName === 'transform' && !envelopeContainer.classList.contains('open')) {
+                if (!isOpen) showHeart();
+            }
+        });
+        
+        // 如果全屏信纸打开时，按下 ESC 键也可以关闭（增强体验）
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && fullscreenLayer.classList.contains('active')) {
+                closeFullscreenAndResetEnvelope();
+            }
+        });
+        
+        // 爱心重新显示后恢复呼吸动画 (MutationObserver 确保动画重启动效)
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mut) => {
+                if (mut.attributeName === 'class' && !heartBtn.classList.contains('hidden-heart')) {
+                    // 重置动画，让爱心重新开始跳动
+                    heartBtn.style.animation = 'none';
+                    heartBtn.offsetHeight; // 强制重绘
+                    heartBtn.style.animation = '';
                 }
-            }
-            adjustLetterHeight();
-            window.addEventListener('resize', adjustLetterHeight);
-            
-            // 监听信封打开/关闭状态来调整信纸高度
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                        adjustLetterHeight();
-                    }
-                });
             });
-            observer.observe(container, { attributes: true });
-        }
+        });
+        observer.observe(heartBtn, { attributes: true });
         
-        // 附加功能：爱心在hover时略微放大
-        heartBtn.addEventListener('mouseenter', () => {
-            if (!isOpen && !isAnimating) {
-                heartBtn.style.transform = 'translate(-50%, -50%) scale(1.1)';
+        // 优雅处理窗口resize不干扰全屏状态
+        window.addEventListener('resize', () => {
+            if (fullscreenLayer.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
             }
         });
-        heartBtn.addEventListener('mouseleave', () => {
-            heartBtn.style.transform = 'translate(-50%, -50%) scale(1)';
-        });
         
-        // 确保当重置完成后如果爱心pointer-events恢复原样
-        // 所有逻辑 ok
+        // 阻止信纸卡片内滚动事件冒泡到背景层 (避免拖动时意外关闭)
+        const letterCard = document.querySelector('.letter-card');
+        if (letterCard) {
+            letterCard.addEventListener('wheel', (e) => e.stopPropagation());
+            // 防止触摸滑动时触发背景关闭
+            letterCard.addEventListener('touchstart', (e) => e.stopPropagation());
+        }
     })();
 </script>
 </body>
