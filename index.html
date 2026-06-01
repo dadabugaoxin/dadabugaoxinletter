@@ -158,8 +158,8 @@
             border-radius: 8px 8px 12px 12px;
             padding: 20px 16px 16px 16px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.5s ease;
-            transform: translateY(100%);
+            transition: transform 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.5s ease, width 0.7s ease, height 0.7s ease, left 0.7s ease, right 0.7s ease, bottom 0.7s ease;
+            transform: translateY(100%) scale(1);
             opacity: 0;
             z-index: 15;
             pointer-events: none;  /* 内容不可交互 但显示即可 */
@@ -169,13 +169,24 @@
             max-height: 170px;
         }
 
-        /* 打开信纸: 优雅滑出并显示内容 */
+        /* 打开信纸: 优雅滑出并放大到全屏 */
         .envelope-container.open .letter {
-            transform: translateY(-70px);
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            width: calc(100vw - 40px);
+            height: calc(100vh - 40px);
+            transform: translateY(0) scale(1);
             opacity: 1;
             pointer-events: auto;
             transition-delay: 0.1s;
-            box-shadow: 0 18px 28px -6px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.35);
+            max-height: calc(100vh - 40px);
+            border-radius: 16px;
+            padding: 40px;
+            z-index: 100;
         }
 
         /* 信纸内容样式 */
@@ -277,7 +288,14 @@
                 font-size: 0.9rem;
             }
             .envelope-container.open .letter {
-                transform: translateY(-60px);
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                width: calc(100vw - 20px);
+                height: calc(100vh - 20px);
+                max-height: calc(100vh - 20px);
+                padding: 20px;
             }
         }
 
@@ -509,11 +527,14 @@
         isOpen = false;
         isAnimating = false;
         
-        // 多虑: 如果因为某些情况信纸内容溢出 调整max-height
+        // 信纸高度自适应
         const letterElem = document.getElementById('letterPaper');
         if (letterElem) {
             function adjustLetterHeight() {
-                if (window.innerWidth <= 480) {
+                // 如果信封已打开，信纸已全屏，不需要调整
+                if (container.classList.contains('open')) {
+                    letterElem.style.maxHeight = 'calc(100vh - 40px)';
+                } else if (window.innerWidth <= 480) {
                     letterElem.style.maxHeight = '150px';
                 } else {
                     letterElem.style.maxHeight = '170px';
@@ -521,6 +542,16 @@
             }
             adjustLetterHeight();
             window.addEventListener('resize', adjustLetterHeight);
+            
+            // 监听信封打开/关闭状态来调整信纸高度
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        adjustLetterHeight();
+                    }
+                });
+            });
+            observer.observe(container, { attributes: true });
         }
         
         // 附加功能：爱心在hover时略微放大
